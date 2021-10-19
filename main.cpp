@@ -211,10 +211,14 @@ int main(const int argc, const char *argv[]) {
   const std::string output_filename = build_output_filename(input_filename);
 
   if (file_exists(input_filename)) {
+    std::cout << "-> " << input_filename << " ..." << std::flush;
     ID n, m;
     const auto edge_list = read_edge_list(input_filename, n, m);
+
+    std::cout << "\b\b\b<- " << output_filename << " ..." << std::flush;
     write_header(output_filename, n, m);
     write_graph_part(output_filename, edge_list, 0, n);
+    std::cout << "\b\b\bOK" << std::endl;
   } else {
     const std::string first_part = input_filename + "_0";
     if (!file_exists(first_part)) {
@@ -226,10 +230,14 @@ int main(const int argc, const char *argv[]) {
     ID to;
 
     {
+      std::cout << "-> " << first_part << " ..." << std::flush;
       const auto first_edge_list_part = read_edge_list(first_part, global_n, global_m);
+
+      std::cout << "\b\b\b<- " << output_filename << " ..." << std::flush;
       write_header(output_filename, global_n, global_m);
       to = first_edge_list_part.back().first;
       write_graph_part(output_filename, first_edge_list_part, 0, to);
+      std::cout << "\b\b\bOK" << std::endl;
     }
 
     for (std::size_t i = 1; ; ++i) {
@@ -241,10 +249,14 @@ int main(const int argc, const char *argv[]) {
         break;
       }
 
+      std::cout << "-> " << part << " ..." << std::flush;
       ID n, m;
       const auto edge_list_part = read_edge_list(part, n, m);
+
+      std::cout << "\b\b\b<- " << output_filename << " ..." << std::flush;
       to = edge_list_part.back().first;
       write_graph_part(output_filename, edge_list_part, from, to);
+      std::cout << "\b\b\bOK" << std::endl;
     }
   }
 }

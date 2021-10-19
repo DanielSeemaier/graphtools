@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+#include <execution>
 
 using ID = unsigned long;
 
@@ -128,7 +129,7 @@ EdgeList read_edge_list(const std::string &filename, ID &n, ID &m) {
 
   munmap_file_from_disk(file);
 
-  std::sort(edge_list.begin(), edge_list.end());
+  std::sort(std::execution::par, edge_list.begin(), edge_list.end());
   return edge_list;
 }
 

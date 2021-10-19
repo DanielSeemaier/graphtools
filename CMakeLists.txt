@@ -4,3 +4,4 @@ project(edgelist2metis)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(edgelist2metis main.cpp)
+target_link_libraries(edgelist2metis tbb)

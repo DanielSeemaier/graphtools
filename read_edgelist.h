@@ -82,6 +82,8 @@ EdgeList read_edge_list(const std::string &filename, ID &n, ID &m, ProgressLambd
   n = scan_int<ID>(file);
   m = scan_int<ID>(file);
   skip_char(file); // \n
+  
+  edge_list.reserve(m);
 
   std::size_t iteration_counter = 0;
 

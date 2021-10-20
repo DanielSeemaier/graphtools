@@ -10,6 +10,7 @@
 #include <string>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 namespace el2metis {
 namespace internal {

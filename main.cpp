@@ -32,7 +32,6 @@ int main(const int argc, const char *argv[]) {
 
   auto update_bar = [](auto &progress, const std::size_t col) {
     return [&progress, col](const auto current, const auto max) {
-      std::cerr << 100.0 * current / max << std::endl;
       progress.update(col, 100.0 * current / max);
       progress.render(std::cout);
     };

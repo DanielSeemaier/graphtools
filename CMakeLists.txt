@@ -10,6 +10,7 @@ set(SOURCE_FILES
 	write_metis.h)
 
 add_library(libgraphfmt INTERFACE
+		arguments.h
 		definitions.h
 		utils.h
 		mmap_toker.h
@@ -25,3 +26,5 @@ add_executable(metis2binary metis2binary.cc)
 target_link_libraries(metis2binary INTERFACE libgraphfmt)
 add_executable(chkmetis chkmetis.cc)
 target_link_libraries(chkmetis INTERFACE libgraphfmt)
+add_executable(metis2xtrapulp metis2xtrapulp.cc)
+target_link_libraries(metis2xtrapulp INTERFACE libgraphfmt)

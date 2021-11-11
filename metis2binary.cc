@@ -32,10 +32,8 @@ int main(int argc, char *argv[]) {
   binary::write_header(out, format.n, format.m);
 
   using BinaryBuffer = std::vector<binary::BinaryID>;
-  metis::read_node_list<BinaryBuffer>(input_filename, kBufferSize, [&](auto &node_list) {
-    binary::write_node_list(out, node_list, format.n);
-  });
-  metis::read_edge_list<BinaryBuffer>(input_filename, kBufferSize, [&](auto &edge_list) {
-    binary::write_edge_list(out, edge_list);
-  });
+  metis::read_node_list<BinaryBuffer>(input_filename, kBufferSize,
+                                      [&](auto &node_list) { binary::write_node_list(out, node_list, format.n); });
+  metis::read_edge_target_list<BinaryBuffer>(input_filename, kBufferSize,
+                                             [&](auto &edge_list) { binary::write_edge_target_list(out, edge_list); });
 }

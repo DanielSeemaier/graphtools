@@ -3,9 +3,8 @@
 #include "definitions.h"
 
 #include <fstream>
-#include <vector>
-
 #include <iostream>
+#include <vector>
 
 namespace graphfmt::binary {
 using BinaryID = unsigned long long;
@@ -26,8 +25,8 @@ void write_node_list(std::ofstream &out, std::vector<BinaryID> &node_list, const
             static_cast<std::streamsize>(node_list.size() * sizeof(BinaryID)));
 }
 
-void write_edge_list(std::ofstream &out, const std::vector<BinaryID> &edge_list) {
-  out.write(reinterpret_cast<const char *>(edge_list.data()),
-            static_cast<std::streamsize>(edge_list.size() * sizeof(BinaryID)));
+void write_edge_target_list(std::ofstream &out, const std::vector<BinaryID> &edge_target_list) {
+  out.write(reinterpret_cast<const char *>(edge_target_list.data()),
+            static_cast<std::streamsize>(edge_target_list.size() * sizeof(BinaryID)));
 }
 } // namespace graphfmt::binary

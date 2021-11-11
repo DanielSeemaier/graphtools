@@ -11,7 +11,10 @@ bool file_exists(const std::string &filename) {
 
 std::string build_output_filename(const std::string &input_filename, const std::string &output_extension) {
   const auto dot_pos = input_filename.find_last_of('.');
-  if (dot_pos == std::string::npos) { return input_filename + "." + output_extension; }
-  return input_filename.substr(0, dot_pos) + "." + output_extension;
+  std::string output_filename = dot_pos == std::string::npos
+                                    ? input_filename + "." + output_extension
+                                    : input_filename.substr(0, dot_pos) + "." + output_extension;
+  if (output_filename == input_filename) { return input_filename + ".2"; }
+  return output_filename;
 }
 } // namespace graphfmt

@@ -74,8 +74,9 @@ void read_node_list(const std::string &filename, const std::size_t buffer_size, 
   consumer(node_list);
 }
 
-template<typename Buffer, typename EdgeListConsumer>
-void read_edge_list(const std::string &filename, const std::size_t buffer_size, EdgeListConsumer &&consumer) {
+template<typename Buffer, typename EdgeTargetListConsumer>
+void read_edge_target_list(const std::string &filename, const std::size_t buffer_size,
+                           EdgeTargetListConsumer &&consumer) {
   MappedFileToker toker(filename);
   const auto [n, m, has_node_weights, has_edge_weights] = read_format(toker);
 
@@ -100,6 +101,45 @@ void read_edge_list(const std::string &filename, const std::size_t buffer_size, 
       }
     }
 
+    if (toker.current() == '\n') { toker.advance(); }
+  }
+
+  consumer(edge_list);
+}
+
+template<typename Buffer, typename EdgeListConsumer>
+void read_edge_list(const std::string &filename, const std::size_t buffer_size, EdgeListConsumer &&consumer) {
+    MappedFileToker toker(filename);
+  const auto [n, m, has_node_weights, has_edge_weights] = read_format(toker);
+
+  // make buffer size even
+  const std::size_t actual_buffer_size = buffer_size + (buffer_size & 1);
+
+  Buffer edge_list;
+  edge_list.reserve(actual_buffer_size);
+
+  ID cur_u = 0;
+
+  for (ID cur_e = 0; cur_e < m; ++cur_e) {
+    toker.skip_spaces();
+    while (toker.current() == '%') {
+      toker.skip_line();
+      toker.skip_spaces();
+    }
+
+    if (has_node_weights) { toker.skip_int(); }
+    while (std::isdigit(toker.current())) {
+      if (has_edge_weights) { toker.skip_int(); }
+      edge_list.push_back(cur_u);
+      edge_list.push_back(toker.scan_int<ID>() - 1);
+
+      if (edge_list.size() == actual_buffer_size) {
+        consumer(edge_list);
+        edge_list.clear();
+      }
+    }
+
+    ++cur_u;
     if (toker.current() == '\n') { toker.advance(); }
   }
 

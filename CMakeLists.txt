@@ -9,4 +9,19 @@ set(SOURCE_FILES
 	read_edgelist.h
 	write_metis.h)
 
-add_executable(edgelist2metis main.cpp ${SOURCE_FILES})
+add_library(libgraphfmt INTERFACE
+		definitions.h
+		utils.h
+		mmap_toker.h
+		progress.h
+		read_edgelist.h
+		read_metis.h
+		write_metis.h
+		write_binary.h)
+
+add_executable(edgelist2metis edgelist2metis.cc)
+target_link_libraries(edgelist2metis INTERFACE libgraphfmt)
+add_executable(metis2binary metis2binary.cc)
+target_link_libraries(metis2binary INTERFACE libgraphfmt)
+add_executable(chkmetis chkmetis.cc)
+target_link_libraries(chkmetis INTERFACE libgraphfmt)

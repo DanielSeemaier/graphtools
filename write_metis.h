@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-namespace el2metis {
+namespace graphfmt {
 namespace internal {
 char *write_char(char *buffer, const char value) {
   *buffer = value;

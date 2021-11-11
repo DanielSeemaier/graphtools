@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-namespace el2metis {
+namespace graphfmt {
 template<std::size_t kNumColumns = 1>
 class MultiColumnProgressBar {
   static constexpr char kLeftBorderSym = '[';

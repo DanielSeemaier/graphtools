@@ -1,31 +1,21 @@
 #include "definitions.h"
 #include "progress.h"
 #include "read_edgelist.h"
+#include "utils.h"
 #include "write_metis.h"
 
 #include <iostream>
 
-using namespace el2metis;
-
-bool file_exists(const std::string &filename) {
-  std::ifstream in(filename);
-  return in.good();
-}
-
-std::string build_output_filename(const std::string &input_filename) {
-  const auto dot_pos = input_filename.find_last_of('.');
-  if (dot_pos == std::string::npos) { return input_filename + ".graph"; }
-  return input_filename.substr(0, dot_pos) + ".graph";
-}
+using namespace graphfmt;
 
 int main(const int argc, const char *argv[]) {
   if (argc != 2) {
-    std::cout << "usage: " << argv[0] << " <input-filename>" << std::endl;
+    std::cout << "usage: " << argv[0] << " <filename>" << std::endl;
     std::exit(1);
   }
 
   const std::string input_filename = argv[1];
-  const std::string output_filename = build_output_filename(input_filename);
+  const std::string output_filename = build_output_filename(input_filename, "graph");
 
   const std::string caption_in = std::string("-> ") + input_filename;
   const std::string caption_out = std::string("<- ") + output_filename;

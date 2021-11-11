@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cctype>
-#include <execution>
 #include <fcntl.h>
 #include <fstream>
 #include <string>
@@ -104,7 +103,9 @@ EdgeList read_edge_list(const std::string &filename, ID &n, ID &m, ProgressLambd
 
   munmap_file_from_disk(file);
 
-  std::sort(std::execution::par, edge_list.begin(), edge_list.end());
+  if (!std::is_sorted(edge_list.begin(), edge_list.end())) {
+    std::sort(edge_list.begin(), edge_list.end());
+  }
   return edge_list;
 }
 } // namespace el2metis

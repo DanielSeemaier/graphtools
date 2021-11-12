@@ -37,8 +37,8 @@ int main(const int argc, const char *argv[]) {
     progress.finish(0);
     progress.render(std::cout);
 
-    write_header(output_filename, n, m);
-    write_graph_part(output_filename, edge_list, 0, n, update_bar(progress, 1));
+    metis::write_format(output_filename, n, m);
+    metis::write_graph_part(output_filename, edge_list, 0, n, update_bar(progress, 1));
     progress.finish(1);
     progress.finish();
     progress.render(std::cout);
@@ -59,9 +59,9 @@ int main(const int argc, const char *argv[]) {
       progress.finish(0);
       progress.render(std::cout);
 
-      write_header(output_filename, global_n, global_m);
+      metis::write_format(output_filename, global_n, global_m);
       to = first_edge_list_part.back().first;
-      write_graph_part(output_filename, first_edge_list_part, 0, to, update_bar(progress, 1));
+      metis::write_graph_part(output_filename, first_edge_list_part, 0, to, update_bar(progress, 1));
       progress.finish(1);
       progress.finish();
       progress.render(std::cout);
@@ -74,7 +74,7 @@ int main(const int argc, const char *argv[]) {
 
       const std::string part = input_filename + "_" + std::to_string(i);
       if (!file_exists(part)) {
-        write_graph_part(output_filename, {}, from, global_n, ignore_progress);
+        metis::write_graph_part(output_filename, {}, from, global_n, ignore_progress);
         break;
       }
 
@@ -84,7 +84,7 @@ int main(const int argc, const char *argv[]) {
       progress.render(std::cout);
 
       to = edge_list_part.back().first;
-      write_graph_part(output_filename, edge_list_part, from, to, update_bar(progress, 1));
+      metis::write_graph_part(output_filename, edge_list_part, from, to, update_bar(progress, 1));
       progress.finish(1);
       progress.finish();
       progress.render(std::cout);

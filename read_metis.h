@@ -34,6 +34,7 @@ Format read_format(const std::string &filename) {
   return read_format(toker);
 }
 
+//! Read node degrees without parsing numbers.
 template<typename Buffer, typename NodeListConsumer>
 void read_node_list(const std::string &filename, const std::size_t buffer_size, NodeListConsumer &&consumer) {
   MappedFileToker toker(filename);
@@ -74,49 +75,10 @@ void read_node_list(const std::string &filename, const std::size_t buffer_size, 
   consumer(node_list);
 }
 
-template<typename Buffer, typename EdgeTargetListConsumer>
-void read_edge_target_list(const std::string &filename, const std::size_t buffer_size,
-                           EdgeTargetListConsumer &&consumer) {
-  MappedFileToker toker(filename);
+//! Read graph and call consumer lambda on each edge.
+template<typename Consumer>
+void read_graph(MappedFileToker &toker, Consumer &&consumer) {
   const auto [n, m, has_node_weights, has_edge_weights] = read_format(toker);
-
-  Buffer edge_list;
-  edge_list.reserve(buffer_size);
-
-  for (ID cur_e = 0; cur_e < m; ++cur_e) {
-    toker.skip_spaces();
-    while (toker.current() == '%') {
-      toker.skip_line();
-      toker.skip_spaces();
-    }
-
-    if (has_node_weights) { toker.skip_int(); }
-    while (std::isdigit(toker.current())) {
-      if (has_edge_weights) { toker.skip_int(); }
-      edge_list.push_back(toker.scan_int<ID>() - 1);
-
-      if (edge_list.size() == buffer_size) {
-        consumer(edge_list);
-        edge_list.clear();
-      }
-    }
-
-    if (toker.current() == '\n') { toker.advance(); }
-  }
-
-  consumer(edge_list);
-}
-
-template<typename Buffer, typename EdgeListConsumer>
-void read_edge_list(const std::string &filename, const std::size_t buffer_size, EdgeListConsumer &&consumer) {
-    MappedFileToker toker(filename);
-  const auto [n, m, has_node_weights, has_edge_weights] = read_format(toker);
-
-  // make buffer size even
-  const std::size_t actual_buffer_size = buffer_size + (buffer_size & 1);
-
-  Buffer edge_list;
-  edge_list.reserve(actual_buffer_size);
 
   ID cur_u = 0;
 
@@ -130,18 +92,56 @@ void read_edge_list(const std::string &filename, const std::size_t buffer_size, 
     if (has_node_weights) { toker.skip_int(); }
     while (std::isdigit(toker.current())) {
       if (has_edge_weights) { toker.skip_int(); }
-      edge_list.push_back(cur_u);
-      edge_list.push_back(toker.scan_int<ID>() - 1);
-
-      if (edge_list.size() == actual_buffer_size) {
-        consumer(edge_list);
-        edge_list.clear();
-      }
+      consumer(cur_u, toker.scan_int<ID>() - 1);
     }
 
     ++cur_u;
     if (toker.current() == '\n') { toker.advance(); }
   }
+}
+
+template<typename Consumer>
+void read_graph(const std::string &filename, Consumer &&consumer) {
+  MappedFileToker toker{filename};
+  read_graph(toker, std::forward<Consumer>(consumer));
+}
+
+//! Read **target of edges** into buffer, call consumer whenever buffer is full.
+template<typename Buffer, typename EdgeTargetListConsumer>
+void read_edge_target_list(const std::string &filename, const std::size_t buffer_size,
+                           EdgeTargetListConsumer &&consumer) {
+  Buffer edge_target_buffer;
+  edge_target_buffer.reserve(buffer_size);
+  read_graph(filename, [&](const ID, const ID to) {
+    edge_target_buffer.push_back(to);
+    if (edge_target_buffer.size() == buffer_size) {
+      consumer(edge_target_buffer);
+      edge_target_buffer.clear();
+      edge_target_buffer.reserve(buffer_size);
+    }
+  });
+
+  consumer(edge_target_buffer);
+}
+
+//! Read **source and target of edges** into buffer, call consumer whenever buffer is full.
+template<typename Buffer, typename EdgeListConsumer>
+void read_edge_list(const std::string &filename, const std::size_t buffer_size, EdgeListConsumer &&consumer) {
+  const std::size_t actual_buffer_size = buffer_size + (buffer_size & 1); // make buffer size even
+
+  Buffer edge_list;
+  edge_list.reserve(actual_buffer_size);
+
+  read_graph(filename, [&](const ID from, const ID to) {
+    edge_list.push_back(from);
+    edge_list.push_back(to);
+
+    if (edge_list.size() == actual_buffer_size) {
+      consumer(edge_list);
+      edge_list.clear();
+      edge_list.reserve(actual_buffer_size);
+    }
+  });
 
   consumer(edge_list);
 }

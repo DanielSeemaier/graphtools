@@ -4,27 +4,18 @@ project(edgelist2metis)
 set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCE_FILES
-	definitions.h
-	progress.h
-	read_edgelist.h
-	write_metis.h)
+        buffered_text_output.h
+        definitions.h
+        mmap_toker.h
+        progress.h
+        read_edgelist.h
+        read_metis.h
+        utils.h
+        write_binary.h
+        write_metis.h)
 
-add_library(libgraphfmt INTERFACE
-		arguments.h
-		definitions.h
-		utils.h
-		mmap_toker.h
-		progress.h
-		read_edgelist.h
-		read_metis.h
-		write_metis.h
-		write_binary.h)
-
-add_executable(edgelist2metis edgelist2metis.cc)
-target_link_libraries(edgelist2metis INTERFACE libgraphfmt)
-add_executable(metis2binary metis2binary.cc)
-target_link_libraries(metis2binary INTERFACE libgraphfmt)
-add_executable(chkmetis chkmetis.cc)
-target_link_libraries(chkmetis INTERFACE libgraphfmt)
-add_executable(metis2xtrapulp metis2xtrapulp.cc)
-target_link_libraries(metis2xtrapulp INTERFACE libgraphfmt)
+add_executable(edgelist2metis edgelist2metis.cc ${SOURCE_FILES})
+add_executable(metis2binary metis2binary.cc ${SOURCE_FILES})
+add_executable(metis2xtrapulp metis2xtrapulp.cc ${SOURCE_FILES})
+add_executable(trimmetis trimmetis.cc ${SOURCE_FILES})
+add_executable(chkmetis chkmetis.cc ${SOURCE_FILES})

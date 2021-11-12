@@ -1,86 +1,35 @@
 #pragma once
 
+#include "buffered_text_output.h"
 #include "definitions.h"
 #include "read_edgelist.h"
 
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-namespace graphfmt {
-namespace internal {
-char *write_char(char *buffer, const char value) {
-  *buffer = value;
-  return buffer + 1;
+namespace graphfmt::metis {
+void write_format(BufferedTextOutput<> &out, const ID n, const ID m) {
+  out.write_int(n).write_char(' ').write_int(m / 2).write_char('\n');
 }
 
-template<typename Int>
-char *write_int(char *buffer, Int value) {
-  static char rev_buffer[80];
-
-  int pos = 0;
-  do {
-    rev_buffer[pos++] = value % 10;
-    value /= 10;
-  } while (value > 0);
-
-  while (pos > 0) { *(buffer++) = '0' + rev_buffer[--pos]; }
-
-  return buffer;
-}
-
-char *flush_buf(const int fd, char *buf, const char *cur_buf) {
-  write(fd, buf, cur_buf - buf);
-  return buf;
-}
-} // namespace internal
-
-void write_header(const std::string &filename, const ID n, const ID m) {
-  using namespace internal;
-
-  const int fd = open(filename.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
-  char buf[1024];
-  char *cur_buf = buf;
-
-  cur_buf = write_int(cur_buf, n);
-  cur_buf = write_char(cur_buf, ' ');
-  cur_buf = write_int(cur_buf, m / 2);
-  cur_buf = write_char(cur_buf, '\n');
-  flush_buf(fd, buf, cur_buf);
-  close(fd);
+void write_format(const std::string &output_filename, const ID n, const ID m) {
+  BufferedTextOutput out{tag::create, output_filename};
+  write_format(out, n, m);
 }
 
 template<typename ProgressLambda>
 void write_graph_part(const std::string &filename, const EdgeList &edge_list, const ID from, const ID to,
                       ProgressLambda &&progress_lambda) {
-  using namespace internal;
-  const int fd = open(filename.c_str(), O_WRONLY | O_APPEND);
-
-  static constexpr std::size_t BUF_SIZE = 16384;
-  static constexpr std::size_t BUF_SIZE_LIMIT = BUF_SIZE - 1024;
-  char buf[BUF_SIZE];
-  char *cur_buf = buf;
-
-  auto flush_if_full = [&] {
-    const std::size_t len = cur_buf - buf;
-    if (len > BUF_SIZE_LIMIT) { cur_buf = flush_buf(fd, buf, cur_buf); }
-  };
+  BufferedTextOutput out(tag::append, filename);
 
   ID cur_u = from;
-
   ID edges_written = 0;
   std::size_t iteration_counter = 0;
 
   for (const auto &[u, v] : edge_list) {
     while (u > cur_u) {
-      cur_buf = write_char(cur_buf, '\n');
-      flush_if_full();
+      out.write_char('\n').flush();
       ++cur_u;
     }
 
-    cur_buf = write_int(cur_buf, v + 1);
-    cur_buf = write_char(cur_buf, ' ');
-    flush_if_full();
+    out.write_int(v + 1).write_char(' ').flush();
     ++edges_written;
 
     if (iteration_counter++ >= 1024 * 1024) {
@@ -92,17 +41,22 @@ void write_graph_part(const std::string &filename, const EdgeList &edge_list, co
   // finish last node
   if (!edge_list.empty()) {
     ++cur_u;
-    cur_buf = write_char(cur_buf, '\n');
+    out.write_char('\n');
   }
 
   // add isolated nodes
   while (to > cur_u) {
-    cur_buf = write_char(cur_buf, '\n');
-    flush_if_full();
+    out.write_char('\n').flush();
     ++cur_u;
   }
-
-  flush_buf(fd, buf, cur_buf);
-  close(fd);
 }
-} // namespace el2metis
+
+void write_edge(BufferedTextOutput<> &out, const ID last_from, const ID from, const ID to) {
+  for (ID cur_u = last_from; cur_u < from; ++cur_u) { out.write_char('\n').flush(); }
+  out.write_int(to + 1).write_char(' ').flush();
+}
+
+void write_finish(BufferedTextOutput<> &out, const ID last_from, const ID n) {
+  for (ID cur_u = last_from; cur_u < n; ++cur_u) { out.write_char('\n').flush(); }
+}
+} // namespace graphfmt

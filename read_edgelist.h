@@ -35,8 +35,12 @@ EdgeList read_edge_list(const std::string &filename, ID &n, ID &m, ProgressLambd
     }
   }
 
-  if (!std::is_sorted(edge_list.begin(), edge_list.end())) {
-    std::sort(edge_list.begin(), edge_list.end());
+  auto edge_comparator = [&](const auto &lhs, const auto &rhs) {
+    return lhs.first < rhs.first;
+  };
+
+  if (!std::is_sorted(edge_list.begin(), edge_list.end(), edge_comparator)) {
+    std::sort(edge_list.begin(), edge_list.end(), edge_comparator);
   }
   return edge_list;
 }

@@ -16,6 +16,10 @@ public:
     _position = 0;
     _length = file_size(_fd);
     _contents = static_cast<char *>(mmap(nullptr, _length, PROT_READ, MAP_PRIVATE, _fd, 0));
+    if (_contents == MAP_FAILED) {
+      close(_fd);
+      throw std::runtime_error{"mmap failed"};
+    }
   }
 
   ~MappedFileToker() {

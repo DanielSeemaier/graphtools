@@ -1,11 +1,11 @@
-#include "read_metis.h"
-#include "utils.h"
-#include "write_metis.h"
+#include "lib/read_metis.h"
+#include "lib/utils.h"
+#include "lib/write_metis.h"
 
 #include <iostream>
 #include <string>
 
-using namespace graphfmt;
+using namespace graphtools;
 
 int main(int argc, char *argv[]) {
   if (argc != 2) {

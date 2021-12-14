@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-namespace graphfmt {
+namespace graphtools {
 class MappedFileToker {
 public:
   explicit MappedFileToker(const std::string &filename) {

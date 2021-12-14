@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-namespace graphfmt {
+namespace graphtools {
 template<std::size_t kNumColumns = 1>
 class MultiColumnProgressBar {
   static constexpr char kLeftBorderSym = '[';

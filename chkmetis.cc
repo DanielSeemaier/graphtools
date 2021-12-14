@@ -1,5 +1,5 @@
-#include "definitions.h"
-#include "progress.h"
+#include "lib/definitions.h"
+#include "lib/progress.h"
 
 #include <algorithm>
 #include <fstream>
@@ -7,7 +7,7 @@
 #include <limits>
 #include <sstream>
 
-using namespace graphfmt;
+using namespace graphtools;
 
 namespace {
 using idx = signed long long;

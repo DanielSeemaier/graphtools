@@ -4,7 +4,7 @@
 #include "definitions.h"
 #include "read_edgelist.h"
 
-namespace graphfmt::metis {
+namespace graphtools::metis {
 void write_format(BufferedTextOutput<> &out, const ID n, const ID m) {
   out.write_int(n).write_char(' ').write_int(m / 2).write_char('\n');
 }

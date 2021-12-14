@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace graphfmt::metis {
+namespace graphtools::metis {
 struct Format {
   ID n;
   ID m;

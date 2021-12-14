@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cctype>
 
-namespace graphfmt {
+namespace graphtools {
 template<typename ProgressLambda>
 EdgeList read_edge_list(const std::string &filename, ID &n, ID &m, ProgressLambda &&progress_lambda) {
   MappedFileToker toker(filename);

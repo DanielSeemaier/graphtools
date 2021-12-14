@@ -1,12 +1,12 @@
-#include "arguments.h"
-#include "read_metis.h"
-#include "utils.h"
+#include "lib/arguments.h"
+#include "lib/read_metis.h"
+#include "lib/utils.h"
 
 #include <iostream>
 
 constexpr std::size_t kBufferSize32 = 1024 * 1024 / sizeof(std::uint32_t);
 
-using namespace graphfmt;
+using namespace graphtools;
 
 namespace {
 template<typename IDType>

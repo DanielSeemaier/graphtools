@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-namespace graphfmt::binary {
+namespace graphtools::binary {
 using BinaryID = unsigned long long;
 
 void write_header(std::ofstream &out, const BinaryID n, const BinaryID m) {

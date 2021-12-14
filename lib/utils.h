@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 
-namespace graphfmt {
+namespace graphtools {
 bool file_exists(const std::string &filename) {
   std::ifstream in(filename);
   return in.good();

@@ -1,12 +1,12 @@
-#include "read_metis.h"
-#include "utils.h"
-#include "write_binary.h"
+#include "lib/read_metis.h"
+#include "lib/utils.h"
+#include "lib/write_binary.h"
 
 #include <iostream>
 #include <string>
 #include <vector>
 
-using namespace graphfmt;
+using namespace graphtools;
 
 // 128 Mb buffer
 constexpr std::size_t kBufferSize = (1024 * 1024) / sizeof(binary::BinaryID);

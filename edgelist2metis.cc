@@ -1,12 +1,12 @@
-#include "definitions.h"
-#include "progress.h"
-#include "read_edgelist.h"
-#include "utils.h"
-#include "write_metis.h"
+#include "lib/definitions.h"
+#include "lib/progress.h"
+#include "lib/read_edgelist.h"
+#include "lib/utils.h"
+#include "lib/write_metis.h"
 
 #include <iostream>
 
-using namespace graphfmt;
+using namespace graphtools;
 
 int main(const int argc, const char *argv[]) {
   if (argc != 2) {

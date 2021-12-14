@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-namespace graphfmt {
+namespace graphtools {
 struct create_tag {};
 struct append_tag {};
 

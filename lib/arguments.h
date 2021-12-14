@@ -12,7 +12,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace graphfmt {
+namespace graphtools {
 /**
  * Simple command line arguments parser that requires minimal boilerplate code, built upon getopt.
  */

@@ -172,11 +172,11 @@ public:
       const std::size_t expected_pos_args = positional_group.arguments.size();
       const bool has_vararg = std::any_of(positional_group.arguments.begin(), positional_group.arguments.end(),
                                           [](const auto &arg) { return arg.vararg; });
-      if (enforce_positional_arguments && !has_vararg && actual_num_pos_args != expected_pos_args) {
-        std::cout << "unexpected number of positional arguments: got " << actual_num_pos_args << ", expected "
-                  << expected_pos_args << std::endl;
-        std::exit(1);
-      }
+      //if (enforce_positional_arguments && !has_vararg && actual_num_pos_args != expected_pos_args) {
+      //  std::cout << "unexpected number of positional arguments: got " << actual_num_pos_args << ", expected "
+      //            << expected_pos_args << std::endl;
+      //  std::exit(1);
+      //}
 
       for (int j = 0, i = optind; i < argc; ++i) {
         positional_group.arguments[j].lambda(argv[i]);

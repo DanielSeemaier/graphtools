@@ -22,3 +22,6 @@ add_executable(trimmetis trimmetis.cc ${SOURCE_FILES})
 add_executable(chkmetis chkmetis.cc ${SOURCE_FILES})
 add_executable(chkmetispart chkmetispart.cc ${SOURCE_FILES})
 add_executable(statmetis statmetis.cc ${SOURCE_FILES})
+
+install(TARGETS trimmetis chkmetis chkmetispart edgelist2metis metis2binary 
+    DESTINATION bin)

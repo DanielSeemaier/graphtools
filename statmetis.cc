@@ -9,18 +9,20 @@ struct Statistics {
   std::string graph{};
   ID n{};
   ID m{};
+  ID max_degree{};
 };
 
-void print_csv_header(const bool /* fast */) { std::cout << "Graph,N,M\n"; }
+void print_csv_header(const bool /* fast */) { std::cout << "Graph,N,M,MaxDegree\n"; }
 
 void print_csv_row(const Statistics &stats, const bool /* fast */) {
-  std::cout << stats.graph << "," << stats.n << "," << stats.m << "\n";
+  std::cout << stats.graph << "," << stats.n << "," << stats.m << "," << stats.max_degree << "\n";
 }
 
 void print_verbose(const Statistics &stats, const bool /* fast */) {
   std::cout << "Graph: " << stats.graph << "\n"
             << "Number of nodes: " << stats.n << "\n"
-            << "Number of edges: " << stats.m << "\n";
+            << "Number of edges: " << stats.m << "\n"
+            << "Maximum degree:  " << stats.max_degree << "\n";
 }
 
 int main(int argc, char *argv[]) {
@@ -53,10 +55,24 @@ int main(int argc, char *argv[]) {
   MappedFileToker toker(filename);
   const auto [n, m, has_node_weights, has_edge_weights] = metis::read_format(toker);
 
+
+  ID max_degree = 0;
+  ID current_node = 0;
+  ID current_degree = 0;
+  metis::read_graph(filename, [&](const ID u, const ID v) {
+    if (u != current_node) {
+      current_node = u;
+      current_degree = 0;
+    }
+    current_degree++;
+    max_degree = std::max(current_degree, max_degree);
+  });
+
   Statistics stats;
   stats.graph = filename;
   stats.n = n;
   stats.m = m;
+  stats.max_degree = max_degree;
 
   if (csv) {
     print_csv_row(stats, fast);

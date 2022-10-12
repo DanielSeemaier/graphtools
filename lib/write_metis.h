@@ -78,7 +78,7 @@ inline void write_finish(const std::string& filename, const ID last_from, const 
 inline void write_edge_list(const std::string& filename, const EdgeList& edge_list, const ID n) {
     write_format(filename, n, edge_list.size());
     write_graph_part(filename, edge_list, 0, n);
-    write_finish(filename, edge_list.back().first, n);
+    write_finish(filename, edge_list.back().first + 1, n);
 }
 } // namespace graphtools::metis
 

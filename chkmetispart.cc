@@ -1,3 +1,4 @@
+#include "CLI11.hpp"
 #include "lib/read_metis.h"
 #include "lib/read_partition.h"
 
@@ -8,13 +9,13 @@
 using namespace graphtools;
 
 int main(int argc, char *argv[]) {
-  if (argc != 3) {
-    std::cout << "usage: " << argv[0] << " <graph filename> <partition filename>" << std::endl;
-    std::exit(1);
-  }
+  std::string graph_filename;
+  std::string partition_filename;
 
-  const std::string graph_filename = argv[1];
-  const std::string partition_filename = argv[2];
+  CLI::App app("chkmetispart");
+  app.add_option("input graph", graph_filename, "Input graph")->check(CLI::ExistingFile)->required();
+  app.add_option("input partition", partition_filename, "Input partition")->check(CLI::ExistingFile)->required();
+  CLI11_PARSE(app, argc, argv);
 
   // load partition
   const auto partition = partition::read(partition_filename);

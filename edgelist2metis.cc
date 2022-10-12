@@ -1,3 +1,4 @@
+#include "CLI11.hpp"
 #include "lib/definitions.h"
 #include "lib/progress.h"
 #include "lib/read_edgelist.h"
@@ -9,13 +10,17 @@
 using namespace graphtools;
 
 int main(const int argc, const char *argv[]) {
-  if (argc != 2) {
-    std::cout << "usage: " << argv[0] << " <filename>" << std::endl;
-    std::exit(1);
-  }
+  std::string input_filename;
+  std::string output_filename;
 
-  const std::string input_filename = argv[1];
-  const std::string output_filename = build_output_filename(input_filename, "graph");
+  CLI::App app{"edgelist2metis"};
+  app.add_option("input graph", input_filename, "Input graph (template)")->required();
+  app.add_option("-o,--outpout", output_filename, "Output graph");
+  CLI11_PARSE(app, argc, argv);
+
+  if (output_filename.empty()) {
+      output_filename = build_output_filename(input_filename, "graph");
+  }
 
   const std::string caption_in = std::string("-> ") + input_filename;
   const std::string caption_out = std::string("<- ") + output_filename;
@@ -91,3 +96,4 @@ int main(const int argc, const char *argv[]) {
     }
   }
 }
+

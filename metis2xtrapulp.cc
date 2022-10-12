@@ -1,4 +1,4 @@
-#include "lib/arguments.h"
+#include "CLI11.hpp"
 #include "lib/read_metis.h"
 #include "lib/utils.h"
 
@@ -24,21 +24,16 @@ void convert(const std::string &input_filename, const std::string &output_filena
 
 int main(int argc, char *argv[]) {
   std::string input_filename;
+  std::string output_filename;
   bool use_64_bit_ids = false;
 
-  { // parse arguments
-    Arguments args;
-    args.group("Options").argument("64", "Use 64 bit node IDs.", &use_64_bit_ids);
-    args.positional().argument("", "Input graph.", &input_filename);
-    args.parse(argc, argv);
-  }
+  CLI::App app("metis2xtrapulp");
+  app.add_option("input graph", input_filename, "Input graph")->check(CLI::ExistingFile)->required();
+  app.add_option("-o,--output", output_filename, "Output graph");
+  app.add_flag("--64", use_64_bit_ids, "Use 64 bit IDs");
+  CLI11_PARSE(app, argc, argv);
 
-  const std::string output_filename = build_output_filename(input_filename, "xtrapulp");
-
-  if (!file_exists(input_filename)) {
-    std::cout << "input file does not exist" << std::endl;
-    std::exit(1);
-  }
+  if (output_filename.empty()) { output_filename = build_output_filename(input_filename, "xtrapulp"); }
 
   if (use_64_bit_ids) {
     convert<std::uint64_t, kBufferSize32 / 2>(input_filename, output_filename);

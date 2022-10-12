@@ -1,3 +1,4 @@
+#include "CLI11.hpp"
 #include "lib/read_metis.h"
 #include "lib/utils.h"
 #include "lib/write_binary.h"
@@ -8,22 +9,24 @@
 
 using namespace graphtools;
 
-// 128 Mb buffer
+// 1 Mb buffer
 constexpr std::size_t kBufferSize = (1024 * 1024) / sizeof(binary::BinaryID);
 
 int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    std::cout << "usage: " << argv[0] << " <filename>" << std::endl;
-    std::exit(1);
-  }
-  const std::string input_filename = argv[1];
+  std::string input_filename;
+  std::string output_filename;
+
+  CLI::App app("metis2binary");
+  app.add_option("input graph", input_filename, "Input graph")->check(CLI::ExistingFile)->required();
+  app.add_option("-o,--output", output_filename, "Output graph");
+  CLI11_PARSE(app, argc, argv);
 
   if (!file_exists(input_filename)) {
     std::cout << "input file does not exist" << std::endl;
     std::exit(1);
   }
 
-  const std::string output_filename = build_output_filename(input_filename, "bgf");
+  if (output_filename.empty()) { output_filename = build_output_filename(input_filename, "bgf"); }
 
   // convert graph
   std::ofstream out(output_filename, std::ios::binary);

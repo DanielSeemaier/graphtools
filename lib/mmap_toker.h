@@ -62,6 +62,17 @@ public:
         skip_spaces();
     }
 
+    void consume_string(const char* str) {
+        std::size_t i = 0;
+        while (str[i] != '\0') {
+            if (str[i] != current()) {
+                throw std::runtime_error{"unexpected char"};
+            }
+            advance();
+            ++i;
+        }
+    }
+
     [[nodiscard]] bool valid_position() const {
         return _position < _length;
     }

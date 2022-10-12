@@ -27,16 +27,16 @@ int main(int argc, char* argv[]) {
         input_filename, [&] { ++n; },
         [&](const auto v1, const auto v2, const auto v3) {
             edges.emplace_back(v1, v2);
-            //edges.emplace_back(v2, v1);
+            edges.emplace_back(v2, v1);
             edges.emplace_back(v2, v3);
-            //edges.emplace_back(v3, v2);
+            edges.emplace_back(v3, v2);
             edges.emplace_back(v3, v1);
-            //edges.emplace_back(v1, v3);
+            edges.emplace_back(v1, v3);
         }
     );
 
     sort_edge_list(edges);
-    //remove_duplicate_edges(edges);
+    remove_duplicate_edges(edges);
 
     metis::write_edge_list(output_filename, edges, n);
 }

@@ -1,7 +1,8 @@
-#include "lib/arguments.h"
+#include <iostream>
+
 #include "lib/read_metis.h"
 
-#include <iostream>
+#include "CLI11.hpp"
 
 using namespace graphtools;
 
@@ -26,57 +27,46 @@ void print_verbose(const Statistics &stats, const bool /* fast */) {
 }
 
 int main(int argc, char *argv[]) {
-  bool csv = false;
-  bool csv_header = false;
-  bool fast = false;
-  std::string filename;
+    bool        csv        = false;
+    bool        csv_header = false;
+    bool        fast       = false;
+    std::string filename;
 
-  Arguments args;
-  args.positional().argument("graph", "Graph filename", &filename, 'G');
-  args.group("General options")
-      .argument("fast", "Only print statistics that can be computed without reading the entire graph.", &fast, 'f');
-  args.group("Output options")
-      .argument("csv", "Use CSV format.", &csv, 'c')
-      .argument("header", "Print CSV header.", &csv_header, 'h');
-  args.parse(argc, argv);
+    CLI::App app("statmetis");
+    app.add_option("input graph", filename, "Input graph")->check(CLI::ExistingFile);
+    app.add_flag("-f,--fast", fast);
+    app.add_flag("-c,--csv", csv);
+    app.add_flag("-h,--csv-header", csv_header);
+    CLI11_PARSE(app, argc, argv);
 
-  if (!csv_header && filename.empty()) {
-    std::cout << "invalid usage; specify graph filename!" << std::endl;
-    std::exit(1);
-  }
-
-  // print CSV header if requested
-  if (csv_header) { print_csv_header(fast); }
-
-  // exit if there is no graph
-  // this is useful if we only want to CSV header
-  if (filename.empty()) { std::exit(0); }
-
-  MappedFileToker toker(filename);
-  const auto [n, m, has_node_weights, has_edge_weights] = metis::read_format(toker);
-
-
-  ID max_degree = 0;
-  ID current_node = 0;
-  ID current_degree = 0;
-  metis::read_graph(filename, [&](const ID u, const ID v) {
-    if (u != current_node) {
-      current_node = u;
-      current_degree = 0;
+    if (!csv_header && filename.empty()) {
+        std::cout << "invalid usage; specify graph filename!" << std::endl;
+        std::exit(1);
     }
-    current_degree++;
-    max_degree = std::max(current_degree, max_degree);
-  });
 
-  Statistics stats;
-  stats.graph = filename;
-  stats.n = n;
-  stats.m = m;
-  stats.max_degree = max_degree;
+    // Print CSV header if requested
+    if (csv_header) {
+        print_csv_header(fast);
+    }
 
-  if (csv) {
-    print_csv_row(stats, fast);
-  } else {
-    print_verbose(stats, fast);
-  }
+    // Exit if there is no graph
+    // This is useful if we only want the CSV header
+    if (filename.empty()) {
+        std::exit(0);
+    }
+
+    MappedFileToker toker(filename);
+    const auto [n, m, has_node_weights, has_edge_weights] = metis::read_format(toker);
+
+    Statistics stats;
+    stats.graph = filename;
+    stats.n     = n;
+    stats.m     = m;
+
+    if (csv) {
+        print_csv_row(stats, fast);
+    } else {
+        print_verbose(stats, fast);
+    }
 }
+

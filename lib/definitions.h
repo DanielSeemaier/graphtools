@@ -4,7 +4,8 @@
 #include <vector>
 
 namespace graphtools {
-using ID = unsigned long;
-using Weight = signed long;
+using ID       = unsigned long;
+using Weight   = signed long;
 using EdgeList = std::vector<std::pair<ID, ID>>;
-} // namespace el2metis
+} // namespace graphtools
+

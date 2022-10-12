@@ -25,6 +25,9 @@ install(TARGETS obj2metis DESTINATION bin)
 add_executable(gr2metis gr2metis.cc ${SOURCE_FILES})
 install(TARGETS gr2metis DESTINATION bin)
 
+add_executable(stp2metis stp2metis.cc ${SOURCE_FILES})
+install(TARGETS stp2metis DESTINATION bin)
+
 # METIS to x
 add_executable(metis2binary metis2binary.cc ${SOURCE_FILES})
 install(TARGETS metis2binary DESTINATION bin)

@@ -1,6 +1,6 @@
 #include "lib/definitions.h"
 #include "lib/mmap_toker.h"
-#include "lib/read_gr.h"
+#include "lib/read_stp.h"
 #include "lib/utils.h"
 #include "lib/write_metis.h"
 
@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
     std::string input_filename;
     std::string output_filename;
 
-    CLI::App app("gr2metis");
+    CLI::App app("stp2metis");
     app.add_option("input mesh", input_filename, "Input mesh")->check(CLI::ExistingFile)->required();
     app.add_option("-o,--output", output_filename, "Output graph");
     CLI11_PARSE(app, argc, argv);
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
 
     ID       graph_n = 0;
     EdgeList edges;
-    gr::read(
+    stp::read(
         input_filename, [&](const ID n, auto) { graph_n = n; },
         [&](const ID u, const ID v) {
             edges.emplace_back(u, v);

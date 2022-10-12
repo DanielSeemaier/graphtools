@@ -65,12 +65,30 @@ public:
     void consume_string(const char* str) {
         std::size_t i = 0;
         while (str[i] != '\0') {
-            if (str[i] != current()) {
+            if (!valid_position() || str[i] != current()) {
                 throw std::runtime_error{"unexpected char"};
             }
             advance();
             ++i;
         }
+    }
+
+    bool test_string(const char* str) {
+        std::size_t pos   = _position;
+        bool        match = true;
+        std::size_t i     = 0;
+
+        while (str[i] != '\0') {
+            if (!valid_position() || str[i] != current()) {
+                match = false;
+                break;
+            }
+            advance();
+            ++i;
+        }
+
+        _position = pos;
+        return match;
     }
 
     [[nodiscard]] bool valid_position() const {

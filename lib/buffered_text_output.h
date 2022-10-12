@@ -22,7 +22,7 @@ template <std::size_t kBufferSize = 1024 * 1024, std::size_t kBufferSizeLimit = 
 class BufferedTextOutput {
 public:
     BufferedTextOutput(create_tag, const std::string& filename)
-        : _fd{_fd = open(filename.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)} {
+        : _fd{_fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR)} {
         if (_fd < 0) {
             std::cout << "cannot write to " << filename << std::endl;
             std::exit(0);

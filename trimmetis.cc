@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 
+#include "lib/definitions.h"
 #include "lib/read_metis.h"
 #include "lib/utils.h"
 #include "lib/write_metis.h"
@@ -19,7 +20,7 @@ int main(int argc, char* argv[]) {
     CLI11_PARSE(app, argc, argv);
 
     if (output_filename.empty()) {
-        output_filename = build_output_filename(input_filename, "graph.trimmed");
+        output_filename = build_output_filename(input_filename, kDefaultTrimmedMetisExtension);
     }
 
     BufferedTextOutput out{tag::create, output_filename};

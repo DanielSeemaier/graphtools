@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include "lib/definitions.h"
 #include "lib/read_metis.h"
 #include "lib/utils.h"
 #include "lib/write_binary.h"
@@ -28,7 +29,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (output_filename.empty()) {
-        output_filename = build_output_filename(input_filename, "bgf");
+        output_filename = build_output_filename(input_filename, kDefaultBinaryExtension);
     }
 
     // convert graph

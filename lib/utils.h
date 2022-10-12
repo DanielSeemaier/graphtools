@@ -1,7 +1,10 @@
 #pragma once
 
+#include <algorithm>
 #include <fstream>
 #include <string>
+
+#include "definitions.h"
 
 namespace graphtools {
 inline bool file_exists(const std::string& filename) {
@@ -18,6 +21,17 @@ inline std::string build_output_filename(const std::string& input_filename, cons
         return input_filename + ".2";
     }
     return output_filename;
+}
+
+inline void sort_edge_list(EdgeList& edges) {
+    if (!std::is_sorted(edges.begin(), edges.end())) {
+        std::sort(edges.begin(), edges.end());
+    }
+}
+
+inline void remove_duplicate_edges(EdgeList& edges) {
+    auto it = std::unique(edges.begin(), edges.end());
+    edges.erase(it, edges.end());
 }
 } // namespace graphtools
 

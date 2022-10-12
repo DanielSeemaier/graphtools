@@ -20,7 +20,7 @@ int main(const int argc, const char* argv[]) {
     CLI11_PARSE(app, argc, argv);
 
     if (output_filename.empty()) {
-        output_filename = build_output_filename(input_filename, "graph");
+        output_filename = build_output_filename(input_filename, kDefaultMetisExtension);
     }
 
     const std::string caption_in  = std::string("-> ") + input_filename;
@@ -31,9 +31,6 @@ int main(const int argc, const char* argv[]) {
             progress.update(col, 100.0 * current / max);
             progress.render(std::cout);
         };
-    };
-
-    auto ignore_progress = [](const auto, const auto) {
     };
 
     if (file_exists(input_filename)) {
@@ -81,7 +78,7 @@ int main(const int argc, const char* argv[]) {
 
             const std::string part = input_filename + "_" + std::to_string(i);
             if (!file_exists(part)) {
-                metis::write_graph_part(output_filename, {}, from, global_n, ignore_progress);
+                metis::write_graph_part(output_filename, {}, from, global_n);
                 break;
             }
 

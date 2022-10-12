@@ -2,6 +2,7 @@
 
 #include "buffered_text_output.h"
 #include "definitions.h"
+#include "mmap_toker.h"
 #include "read_edgelist.h"
 
 namespace graphtools::metis {
@@ -52,6 +53,10 @@ void write_graph_part(
     }
 }
 
+inline void write_graph_part(const std::string& filename, const EdgeList& edge_list, const ID from, const ID to) {
+    write_graph_part(filename, edge_list, from, to, [&](auto, auto) {});
+}
+
 inline void write_edge(BufferedTextOutput<>& out, const ID last_from, const ID from, const ID to) {
     for (ID cur_u = last_from; cur_u < from; ++cur_u) {
         out.write_char('\n').flush();
@@ -63,6 +68,17 @@ inline void write_finish(BufferedTextOutput<>& out, const ID last_from, const ID
     for (ID cur_u = last_from; cur_u < n; ++cur_u) {
         out.write_char('\n').flush();
     }
+}
+
+inline void write_finish(const std::string& filename, const ID last_from, const ID n) {
+    BufferedTextOutput out(tag::append, filename);
+    write_finish(out, last_from, n);
+}
+
+inline void write_edge_list(const std::string& filename, const EdgeList& edge_list, const ID n) {
+    write_format(filename, n, edge_list.size());
+    write_graph_part(filename, edge_list, 0, n);
+    write_finish(filename, edge_list.back().first, n);
 }
 } // namespace graphtools::metis
 

@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     CLI11_PARSE(app, argc, argv);
 
     if (output_filename.empty()) {
-        output_filename = build_output_filename(input_filename, "xtrapulp");
+        output_filename = build_output_filename(input_filename, kDefaultXtrapulpExtension);
     }
 
     if (use_64_bit_ids) {

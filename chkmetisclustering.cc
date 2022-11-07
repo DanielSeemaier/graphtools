@@ -54,9 +54,6 @@ int main(int argc, char* argv[]) {
             total_node_weight += weight;
         },
         [&](const ID u, const ID v, const Weight weight) {
-            if (weight != 1) {
-                std::cerr << weight << "\n";
-            }
             if (clustering[u] != clustering[v]) {
                 edge_cut += weight;
             }

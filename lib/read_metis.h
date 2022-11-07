@@ -62,10 +62,10 @@ void read_node_list(const std::string& filename, const std::size_t buffer_size, 
             }
 
             while (std::isdigit(toker.current())) {
+                toker.skip_int();
                 if (has_edge_weights) {
                     toker.skip_int();
                 }
-                toker.skip_int();
                 ++offset;
             }
 
@@ -88,7 +88,7 @@ void read_graph_weighted(const std::string& filename, NodeConsumer&& node_consum
     MappedFileToker toker(filename);
     const auto [n, m, has_node_weights, has_edge_weights] = read_format(toker);
 
-    for (ID cur_u = 0; cur_u < n; ++cur_u) {
+    for (ID u = 0; u < n; ++u) {
         toker.skip_spaces();
         while (toker.current() == '%') {
             toker.skip_line();
@@ -99,14 +99,15 @@ void read_graph_weighted(const std::string& filename, NodeConsumer&& node_consum
         if (has_node_weights) {
             weight_u = toker.scan_int<Weight>();
         }
-        node_consumer(cur_u, weight_u);
+        node_consumer(u, weight_u);
 
         while (std::isdigit(toker.current())) {
-            Weight weight_e = 1;
+            const ID v      = toker.scan_int<ID>() - 1;
+            Weight   weight = 1;
             if (has_edge_weights) {
-                weight_e = toker.scan_int<Weight>();
+                weight = toker.scan_int<Weight>();
             }
-            edge_consumer(cur_u, toker.scan_int<ID>() - 1, weight_e);
+            edge_consumer(u, v, weight);
         }
 
         if (toker.current() == '\n') {
@@ -120,9 +121,7 @@ template <typename Consumer>
 void read_graph(MappedFileToker& toker, Consumer&& consumer) {
     const auto [n, m, has_node_weights, has_edge_weights] = read_format(toker);
 
-    ID cur_u = 0;
-
-    for (ID cur_e = 0; cur_e < m; ++cur_e) {
+    for (ID u = 0; u < n; ++u) {
         toker.skip_spaces();
         while (toker.current() == '%') {
             toker.skip_line();
@@ -133,14 +132,13 @@ void read_graph(MappedFileToker& toker, Consumer&& consumer) {
             toker.skip_int();
         }
         while (std::isdigit(toker.current())) {
+            const ID v = toker.scan_int<ID>() - 1;
             if (has_edge_weights) {
                 toker.skip_int();
             }
-            consumer(cur_u, toker.scan_int<ID>() - 1);
-            ++cur_e;
+            consumer(u, v);
         }
 
-        ++cur_u;
         if (toker.current() == '\n') {
             toker.advance();
         }

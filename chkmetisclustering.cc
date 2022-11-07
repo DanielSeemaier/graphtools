@@ -54,6 +54,9 @@ int main(int argc, char* argv[]) {
             total_node_weight += weight;
         },
         [&](const ID u, const ID v, const Weight weight) {
+            if (weight != 1) {
+                std::cerr << weight << "\n";
+            }
             if (clustering[u] != clustering[v]) {
                 edge_cut += weight;
             }
@@ -65,6 +68,7 @@ int main(int argc, char* argv[]) {
         std::count_if(cluster_weights.begin(), cluster_weights.end(), [&](const Weight weight) { return weight > 0; });
     const Weight max_weight = *std::max_element(cluster_weights.begin(), cluster_weights.end());
 
-    std::cout << "cut=" << edge_cut << std::endl;
+    std::cout << "cut=" << edge_cut << " num_clusters=" << number_of_clusters << " max_weight=" << max_weight
+              << std::endl;
 }
 

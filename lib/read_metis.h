@@ -83,6 +83,38 @@ void read_node_list(const std::string& filename, const std::size_t buffer_size, 
     consumer(node_list);
 }
 
+template <typename NodeConsumer, typename EdgeConsumer>
+void read_graph_weighted(const std::string& filename, NodeConsumer&& node_consumer, EdgeConsumer&& edge_consumer) {
+    MappedFileToker toker(filename);
+    const auto [n, m, has_node_weights, has_edge_weights] = read_format(toker);
+
+    for (ID cur_u = 0; cur_u < n; ++cur_u) {
+        toker.skip_spaces();
+        while (toker.current() == '%') {
+            toker.skip_line();
+            toker.skip_spaces();
+        }
+
+        Weight weight_u = 1;
+        if (has_node_weights) {
+            weight_u = toker.scan_int<Weight>();
+        }
+        node_consumer(cur_u, weight_u);
+
+        while (std::isdigit(toker.current())) {
+            Weight weight_e = 1;
+            if (has_edge_weights) {
+                weight_e = toker.scan_int<Weight>();
+            }
+            edge_consumer(cur_u, toker.scan_int<ID>() - 1, weight_e);
+        }
+
+        if (toker.current() == '\n') {
+            toker.advance();
+        }
+    }
+}
+
 //! Read graph and call consumer lambda on each edge.
 template <typename Consumer>
 void read_graph(MappedFileToker& toker, Consumer&& consumer) {
@@ -105,6 +137,7 @@ void read_graph(MappedFileToker& toker, Consumer&& consumer) {
                 toker.skip_int();
             }
             consumer(cur_u, toker.scan_int<ID>() - 1);
+            ++cur_e;
         }
 
         ++cur_u;

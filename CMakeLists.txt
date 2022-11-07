@@ -45,5 +45,9 @@ install(TARGETS chkmetis DESTINATION bin)
 add_executable(chkmetispart chkmetispart.cc ${SOURCE_FILES})
 install(TARGETS chkmetispart DESTINATION bin)
 
+add_executable(chkmetisclustering chkmetisclustering.cc ${SOURCE_FILES})
+install(TARGETS chkmetisclustering DESTINATION bin)
+
 add_executable(statmetis statmetis.cc ${SOURCE_FILES})
 install(TARGETS statmetis DESTINATION bin)
+

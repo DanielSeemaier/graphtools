@@ -41,14 +41,15 @@ int main(int argc, char* argv[]) {
     }
 
     std::vector<ID> block_sizes(k);
-    for (ID u = 0; u < n; ++u) {
-        ++block_sizes[partition[u]];
-    }
+    ID              cut = 0;
+
+    metis::read_graph_weighted(
+        graph_filename, [&](const ID u, const Weight weight) { block_sizes[partition[u]] += weight; },
+        [&](const ID u, const ID v, const Weight weight) { cut += weight * (partition[u] != partition[v]); }
+    );
+
     const ID     max_weight = *std::max_element(block_sizes.begin(), block_sizes.end());
     const double imbalance  = static_cast<double>(max_weight) / (static_cast<double>(n) / static_cast<double>(k));
 
-    ID cut = 0;
-    metis::read_graph(graph_toker, [&](const ID u, const ID v) { cut += partition[u] != partition[v]; });
-
-    std::cout << "cut=" << cut << " imbalance=" << imbalance << std::endl;
+    std::cout << "cut=" << (cut / 2) << " imbalance=" << imbalance << std::endl;
 }

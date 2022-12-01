@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
         if (periodic_boundary) {
             write_edge(0, width - 1, 1, width - 1);
         }
-        write_edge(0, width - 1, 0, 0);
+        write_edge(0, width - 1, 0, width - 2);
         next_node();
 
         for (std::size_t y = 1; y + 1 < height; ++y) {

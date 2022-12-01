@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
         output_filename = build_output_filename(input_filename, kDefaultTrimmedMetisExtension);
     }
 
-    BufferedTextOutput out{tag::create, output_filename};
+    BufferedTextOutput<> out{tag::create, output_filename};
 
     const auto [n, m, has_node_weights, has_edge_weights] = metis::read_format(input_filename);
     metis::write_format(out, n, m);

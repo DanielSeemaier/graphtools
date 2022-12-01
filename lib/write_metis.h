@@ -6,13 +6,28 @@
 #include "read_edgelist.h"
 
 namespace graphtools::metis {
-inline void write_format(BufferedTextOutput<>& out, const ID n, const ID m) {
-    out.write_int(n).write_char(' ').write_int(m / 2).write_char('\n');
+inline void write_format(
+    BufferedTextOutput<>& out, const ID n, const ID m, const bool node_weights = false, const bool edge_weights = false
+) {
+    out.write_int(n).write_char(' ').write_int(m / 2);
+    if (node_weights || edge_weights) {
+        out.write_char(' ');
+        if (node_weights) {
+            out.write_int(node_weights).write_int(edge_weights);
+        } else {
+            out.write_int(edge_weights);
+        }
+    }
+    out.write_char('\n');
+    out.flush();
 }
 
-inline void write_format(const std::string& output_filename, const ID n, const ID m) {
+inline void write_format(
+    const std::string& output_filename, const ID n, const ID m, const bool node_weights = false,
+    const bool edge_weights = false
+) {
     BufferedTextOutput out{tag::create, output_filename};
-    write_format(out, n, m);
+    write_format(out, n, m, node_weights, edge_weights);
 }
 
 template <typename ProgressLambda>

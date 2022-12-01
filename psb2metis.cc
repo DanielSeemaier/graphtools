@@ -36,13 +36,15 @@ struct RGB {
     std::vector<std::uint8_t> B;
 };
 
-RGB parse_simple_psb(const std::string& filename) {
+RGB parse_simple_psb(const std::string& filename, const bool quiet) {
     std::ifstream in(filename);
-
     in.seekg(0, std::ios_base::end);
     auto size = in.tellg();
     in.seekg(0);
-    std::cout << "File size: " << size << std::endl;
+
+    if (!quiet) {
+        std::cout << "File size: " << size << std::endl;
+    }
 
     auto signature    = read<std::string, 4>(in);
     auto version      = read<std::uint16_t, 2>(in);
@@ -52,14 +54,16 @@ RGB parse_simple_psb(const std::string& filename) {
     auto width        = read<std::uint32_t, 4>(in);
     auto depth        = read<std::uint16_t, 2>(in);
     auto color_mode   = read<std::uint16_t, 2>(in);
-    std::cout << "Signature: " << signature << std::endl;
-    std::cout << "Version: " << version << std::endl;
-    std::cout << "Reserved: " << reserved << std::endl;
-    std::cout << "# channels: " << num_channels << std::endl;
-    std::cout << "Height: " << height << std::endl;
-    std::cout << "Width: " << width << std::endl;
-    std::cout << "Depth: " << depth << std::endl;
-    std::cout << "Color mode: " << color_mode << std::endl;
+    if (!quiet) {
+        std::cout << "Signature: " << signature << std::endl;
+        std::cout << "Version: " << version << std::endl;
+        std::cout << "Reserved: " << reserved << std::endl;
+        std::cout << "# channels: " << num_channels << std::endl;
+        std::cout << "Height: " << height << std::endl;
+        std::cout << "Width: " << width << std::endl;
+        std::cout << "Depth: " << depth << std::endl;
+        std::cout << "Color mode: " << color_mode << std::endl;
+    }
 
     if (version != 2) {
         std::cerr << "Error: unexpected file format " << version
@@ -80,25 +84,31 @@ RGB parse_simple_psb(const std::string& filename) {
     }
 
     auto color_section_length = read<std::uint32_t, 4>(in);
-    std::cout << "Color Mode Data Length: " << color_section_length << " (ignoring)" << std::endl;
+    if (!quiet)
+        std::cout << "Color Mode Data Length: " << color_section_length << " (ignoring)" << std::endl;
     in.seekg(color_section_length, std::ios_base::cur);
 
     auto image_resources_length = read<std::uint32_t, 4>(in);
-    std::cout << "Image Resources Length: " << image_resources_length << " (ignoring)" << std::endl;
+    if (!quiet)
+        std::cout << "Image Resources Length: " << image_resources_length << " (ignoring)" << std::endl;
     in.seekg(image_resources_length, std::ios_base::cur);
 
     auto layer_mask_length = read<std::uint64_t, 8>(in); // PSD = 4, PSB = 8
-    std::cout << "Layer and Mask Information Length: " << layer_mask_length << " (ignoring)" << std::endl;
+    if (!quiet)
+        std::cout << "Layer and Mask Information Length: " << layer_mask_length << " (ignoring)" << std::endl;
     in.seekg(layer_mask_length, std::ios_base::cur);
 
     auto compression = read<std::uint16_t, 2>(in);
-    std::cout << "Image Data Compression: " << compression << std::endl;
-    std::cout << " -- current position in file: " << in.tellg() << std::endl;
-    std::cout << " -- remaining bytes: " << size - in.tellg() << std::endl;
-    std::cout << " -- div. by # channels: " << ((size - in.tellg()) % num_channels == 0 ? "yes" : "no") << std::endl;
-    std::cout << " -- entries per channel: " << (size - in.tellg()) / num_channels << std::endl;
-    std::cout << " --  ... expected: " << static_cast<std::uint64_t>(width) * static_cast<std::uint64_t>(height)
-              << std::endl;
+    if (!quiet) {
+        std::cout << "Image Data Compression: " << compression << std::endl;
+        std::cout << " -- current position in file: " << in.tellg() << std::endl;
+        std::cout << " -- remaining bytes: " << size - in.tellg() << std::endl;
+        std::cout << " -- div. by # channels: " << ((size - in.tellg()) % num_channels == 0 ? "yes" : "no")
+                  << std::endl;
+        std::cout << " -- entries per channel: " << (size - in.tellg()) / num_channels << std::endl;
+        std::cout << " --  ... expected: " << static_cast<std::uint64_t>(width) * static_cast<std::uint64_t>(height)
+                  << std::endl;
+    }
 
     const std::uint64_t       num_pixels = static_cast<std::uint64_t>(width) * static_cast<std::uint64_t>(height);
     std::vector<std::uint8_t> red(num_pixels);
@@ -107,18 +117,25 @@ RGB parse_simple_psb(const std::string& filename) {
     in.read(reinterpret_cast<char*>(red.data()), num_pixels);
     in.read(reinterpret_cast<char*>(green.data()), num_pixels);
     in.read(reinterpret_cast<char*>(blue.data()), num_pixels);
-    std::cout << "Finished reading, position: " << in.tellg() << std::endl;
+    if (!quiet)
+        std::cout << "Finished reading, position: " << in.tellg() << std::endl;
 
     return {width, height, std::move(red), std::move(green), std::move(blue)};
 }
+
+enum class WeightModel {
+    L2,
+    IL2,
+};
 
 int main(int argc, char* argv[]) {
     std::string  input_filename;
     std::string  output_filename;
     std::string  tga_output_filename;
-    std::int16_t tga_size = 255;
-    // std::string  weight_model      = "l2";
-    bool periodic_boundary = false;
+    std::int16_t tga_size          = 255;
+    std::string  weight_model_name = "l2";
+    bool         periodic_boundary = false;
+    bool         quiet             = false;
 
     CLI::App app("trimmetis");
     app.add_option("input psb", input_filename, "Input PSB file")->check(CLI::ExistingFile)->required();
@@ -128,17 +145,25 @@ int main(int argc, char* argv[]) {
     );
     app.add_option("--tga-size", tga_size, "Size of the TGA output in number of rows / cols");
     app.add_option("-o,--output", output_filename, "Output graph");
-    // app.add_option("--weight-model", weight_model, "Edge weights, possible options are: {l2}")
-    //     ->check(CLI::IsMember({"l2"}));
+    app.add_option("--weight-model", weight_model_name, "Edge weights, possible options are: {l2, il2}")
+        ->check(CLI::IsMember({"l2", "il2"}));
     app.add_flag("--periodic-boundary", periodic_boundary);
+    app.add_flag("--quiet", quiet);
     CLI11_PARSE(app, argc, argv);
 
-    RGB               rgb    = parse_simple_psb(input_filename);
+    WeightModel weight_model = WeightModel::L2;
+    if (weight_model_name == "il2") {
+        weight_model = WeightModel::IL2;
+    }
+
+    RGB               rgb    = parse_simple_psb(input_filename, quiet);
     const std::size_t width  = rgb.width;
     const std::size_t height = rgb.height;
     const auto&       R      = rgb.R;
     const auto&       G      = rgb.G;
     const auto&       B      = rgb.B;
+
+    const ID max_weight = std::sqrt(3) * 255 + 1;
 
     if (!output_filename.empty()) {
         const ID n = width * height;
@@ -155,8 +180,9 @@ int main(int argc, char* argv[]) {
             const std::uint8_t Gd        = std::max(G[pos1], G[pos2]) - std::min(G[pos1], G[pos2]);
             const std::uint8_t Bd        = std::max(B[pos1], B[pos2]) - std::min(B[pos1], B[pos2]);
             const ID           l2_weight = std::sqrt(Rd * Rd + Gd * Gd + Bd * Bd);
+            const ID           weight    = (weight_model == WeightModel::IL2) ? max_weight - weight : weight;
 
-            out.write_int(v + 1).write_char(' ').write_int(l2_weight).write_char(' ').flush();
+            out.write_int(v + 1).write_char(' ').write_int(weight).write_char(' ').flush();
         };
         auto next_node = [&] {
             out.write_char('\n').flush();
@@ -210,8 +236,10 @@ int main(int argc, char* argv[]) {
                 write_edge(y, x, y, x - 1);
                 next_node();
             }
-            progress.update(0, y);
-            progress.render(std::cout);
+            if (!quiet && y % 64 == 0) {
+                progress.update(0, y);
+                progress.render(std::cout);
+            }
         }
 
         write_edge(height - 1, 0, height - 2, 0);
@@ -246,8 +274,10 @@ int main(int argc, char* argv[]) {
         write_edge(height - 1, width - 1, height - 1, width - 2);
         next_node();
 
-        progress.finish();
-        progress.render(std::cout);
+        if (!quiet) {
+            progress.finish();
+            progress.render(std::cout);
+        }
     }
 
     if (!tga_output_filename.empty()) {
